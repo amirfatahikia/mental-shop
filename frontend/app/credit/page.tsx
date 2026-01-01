@@ -1,9 +1,11 @@
 "use client";
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+
+import React, { Suspense, useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useModal } from "@/context/ModalContext";
 
-export default function CreditRequest() {
+/** ✅ کامپوننت داخلی: تمام کد قبلی اینجاست (بدون حذف شدن چیزی) */
+function CreditRequestInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { showModal } = useModal();
@@ -712,5 +714,20 @@ export default function CreditRequest() {
         )}
       </div>
     </main>
+  );
+}
+
+/** ✅ خروجی اصلی صفحه: فقط یک Wrapper با Suspense اضافه شده */
+export default function CreditRequestPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-gray-100 flex items-center justify-center p-6 font-black" dir="rtl">
+          در حال بارگذاری...
+        </main>
+      }
+    >
+      <CreditRequestInner />
+    </Suspense>
   );
 }
