@@ -245,7 +245,7 @@ export default function MyOrdersPage() {
           <button
             onClick={() =>
               showModal(
-                "info",
+                "success",
                 "پشتیبانی",
                 "اگر مشکلی در سفارش‌هاتون دارید، پیام بدید تا سریع بررسی کنیم ✅"
               )
