@@ -518,7 +518,7 @@ export default function ProductDetails() {
         index={activeMedia}
         slides={slides}
         plugins={[Zoom, Video]}
-        closeOnBackdropClick={true}
+        controller={{ closeOnBackdropClick: true }}
         render={{
           iconPrev: () => <ChevronLeft size={40} />,
           iconNext: () => <ChevronRight size={40} />,
