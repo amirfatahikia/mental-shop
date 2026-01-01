@@ -9,8 +9,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-30$m5vx=m7f)v12-sb1w775@a0arg$pc&z=thev#(=)9k+4m84'
 DEBUG = True
 
-# اجازه دسترسی لوکال (سرعت حداکثری روی مک)
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
+# ✅ طبق درخواست شما
+ALLOWED_HOSTS = ['*']
 
 # ۳. تعریف اپلیکیشن‌ها
 INSTALLED_APPS = [
@@ -35,6 +35,10 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+
+    # ✅ طبق درخواست شما: دقیقاً زیر SecurityMiddleware
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -89,25 +93,36 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+# (اختیاری ولی پیشنهادی برای WhiteNoise)
+# STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 # آدرسی که در مرورگر برای دیدن عکس‌ها استفاده می‌شود
 MEDIA_URL = '/media/'
 # پوشه‌ای که عکس‌ها در آن ذخیره می‌شوند
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # ✅ اضافه شد: افزایش سقف آپلود (برای عکس/ویدئو)
-# (اگر ویدئوها سنگین‌ترن، این اعداد رو بیشتر کن)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024   # 50MB
 FILE_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024   # 50MB
 FILE_UPLOAD_PERMISSIONS = 0o644
 
 # ۹. تنظیمات CORS و دسترسی‌های معتبر
-CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
-# بازگشت به تنظیمات localhost برای رفع خطاهای امنیتی در محیط توسعه مک
+# ✅ طبق درخواست شما: چون فرانت و بک‌اند روی دو آدرس مختلف‌اند
+# لینک ورسل خودت رو جایگزین کن
+CORS_ALLOWED_ORIGINS = [
+    "https://YOUR_VERCEL_LINK.vercel.app",
+]
+
+# ✅ مهم: چون قبلاً True بود و با لیست بالا تداخل داره
+CORS_ALLOW_ALL_ORIGINS = False
+
+# (پیشنهادی) برای POST/PUT از ورسل، این هم بهتره اضافه بشه
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:3000',
-    'http://127.0.0.1:3000'
+    'http://127.0.0.1:3000',
+    "https://YOUR_VERCEL_LINK.vercel.app",
 ]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
