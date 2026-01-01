@@ -1,7 +1,8 @@
 "use client";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+// ✅ اضافه شدن ایمپورت آیکون Plus برای رفع ارور بیلد
+import { Plus } from "lucide-react";
 
-// استفاده از تایپ منعطف برای محصول
 type Product = any;
 
 interface Props {
@@ -24,7 +25,6 @@ export default function InfiniteProducts({ apiBase = "http://127.0.0.1:8000", pa
     try {
       const res = await fetch(`${apiBase}/api/products/?page=${p}&page_size=${pageSize}`);
       if (!res.ok) {
-        // اگر پجینیشن در دسترس نبود، همه محصولات را بگیر
         const all = await fetch(`${apiBase}/api/products/`).then(r => r.json());
         return Array.isArray(all) ? all : [];
       }
@@ -42,7 +42,6 @@ export default function InfiniteProducts({ apiBase = "http://127.0.0.1:8000", pa
     }
   }, [apiBase, pageSize]);
 
-  // لود اولیه محصولات
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -60,11 +59,9 @@ export default function InfiniteProducts({ apiBase = "http://127.0.0.1:8000", pa
     return () => { mounted = false; };
   }, [fetchPage, pageSize]);
 
-  // ✅ اصلاح بخش مربوط به Intersection Observer برای رفع ارور تایپ‌اسکریپت
   useEffect(() => {
     if (!lastElementRef.current) return;
     
-    // پاک‌سازی آبزرور قبلی
     if (observerRef.current) observerRef.current.disconnect();
 
     observerRef.current = new IntersectionObserver(entries => {
@@ -75,7 +72,6 @@ export default function InfiniteProducts({ apiBase = "http://127.0.0.1:8000", pa
 
     observerRef.current.observe(lastElementRef.current);
 
-    // ✅ اصلاح تابع Cleanup برای جلوگیری از برگرداندن null
     return () => {
       if (observerRef.current) {
         observerRef.current.disconnect();
@@ -83,7 +79,6 @@ export default function InfiniteProducts({ apiBase = "http://127.0.0.1:8000", pa
     };
   }, [loading, hasMore]);
 
-  // لود صفحات بعدی
   useEffect(() => {
     if (page === 1) return;
     let mounted = true;
@@ -93,7 +88,6 @@ export default function InfiniteProducts({ apiBase = "http://127.0.0.1:8000", pa
 
       if (data.length === 0) {
         if (looping && items.length > 0) {
-          // ایجاد کپی برای فید بی‌پایان
           const clones = items.map((it, idx) => ({ ...it, id: `${it.id}-loop-${page}-${idx}` }));
           setItems(prev => [...prev, ...clones]);
           setHasMore(true);
@@ -107,7 +101,7 @@ export default function InfiniteProducts({ apiBase = "http://127.0.0.1:8000", pa
       setHasMore(data.length >= pageSize);
     })();
     return () => { mounted = false; };
-  }, [page, fetchPage, looping, pageSize]); // حذف items از وابستگی برای جلوگیری از لوپ بی‌نهایت
+  }, [page, fetchPage, looping, pageSize]);
 
   return (
     <section className="my-14 font-black italic">
@@ -119,7 +113,6 @@ export default function InfiniteProducts({ apiBase = "http://127.0.0.1:8000", pa
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
         {items.map((p: Product, idx: number) => {
           const isLast = idx === items.length - 1;
-          // استفاده از عکس اصلی با فال‌بک
           const productImage = p.main_image || p.image_url || "/placeholder.png";
 
           return (
