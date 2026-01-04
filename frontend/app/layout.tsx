@@ -13,7 +13,7 @@ import {
   CreditCard,
   LogOut,
   Search, // آیکون جدید
-  X,      // آیکون جدید
+  X, // آیکون جدید
 
   // --- آیکون‌های فوتر ---
   Instagram,
@@ -81,9 +81,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   ];
 
   // فیلتر آنی نتایج جستجو
-  const filteredResults = searchQuery.length > 1
-    ? products.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()))
-    : [];
+  const filteredResults =
+    searchQuery.length > 1
+      ? products.filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase()))
+      : [];
   // -----------------------------
 
   // ✅ اگر داخل صفحات category هستیم، سبد خرید پایین موبایل مخفی شود
@@ -99,7 +100,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     const token = localStorage.getItem("access_token");
     if (token) {
       try {
-        const res = await fetch("/api/user-profile/", {
+        // ✅ اصلاح شده: absolute به لیارا
+        const res = await fetch(`https://${IP_ADDRESS}/api/user-profile/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
@@ -250,23 +252,30 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
             {/* --- باکس جستجوی هوشمند --- */}
             <div className="hidden md:flex flex-1 max-w-md mx-8 relative">
-              <div className={`relative w-full transition-all duration-500 ${isSearchFocused ? "scale-[1.02]" : "scale-100"}`}>
+              <div
+                className={`relative w-full transition-all duration-500 ${
+                  isSearchFocused ? "scale-[1.02]" : "scale-100"
+                }`}
+              >
                 <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 <input
                   type="text"
                   placeholder="جستجو در محصولات..."
-                  className="w-full bg-gray-100 border-none rounded-2xl py-3 pr-12 pl-4 text-xs font-black outline-none focus:bg-white focus:ring-4 focus:ring-blue-500/10 transition-all text-gray-900"  // تغییر رنگ متن به تیره‌تر
+                  className="w-full bg-gray-100 border-none rounded-2xl py-3 pr-12 pl-4 text-xs font-black outline-none focus:bg-white focus:ring-4 focus:ring-blue-500/10 transition-all text-gray-900" // تغییر رنگ متن به تیره‌تر
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => setIsSearchFocused(true)}
                   onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
                 />
                 {searchQuery.length > 0 && (
-                  <button onClick={() => setSearchQuery("")} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-900">
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-900"
+                  >
                     <X size={16} />
                   </button>
                 )}
-                
+
                 {/* پنل نتایج زنده */}
                 {isSearchFocused && searchQuery.length > 1 && (
                   <div className="absolute top-full mt-3 w-full bg-white/95 backdrop-blur-2xl rounded-[2rem] shadow-2xl border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-top-2 z-[600]">
@@ -275,19 +284,29 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                         <div className="p-8 text-center text-xs font-black animate-pulse">در حال جستجو...</div>
                       ) : searchResults.length > 0 ? (
                         searchResults.map((result) => (
-                          <Link key={result.id} href={`/product/${result.id}`} className="flex items-center gap-4 p-4 hover:bg-blue-50 rounded-2xl transition-all">
+                          <Link
+                            key={result.id}
+                            href={`/product/${result.id}`}
+                            className="flex items-center gap-4 p-4 hover:bg-blue-50 rounded-2xl transition-all"
+                          >
                             <div className="w-12 h-12 bg-gray-100 rounded-xl overflow-hidden">
                               {/* استفاده از تصویر اصلی محصول */}
                               <img src={result.main_image} alt="" className="w-full h-full object-cover" />
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-sm font-black text-gray-800">{result.title}</span> {/* ✅ تغییر از name به title */}
-                              <span className="text-[10px] text-gray-400 font-bold">{Number(result.base_sale_price).toLocaleString()} تومان</span> {/* ✅ */}
+                              <span className="text-sm font-black text-gray-800">{result.title}</span>{" "}
+                              {/* ✅ تغییر از name به title */}
+                              <span className="text-[10px] text-gray-400 font-bold">
+                                {Number(result.base_sale_price).toLocaleString()} تومان
+                              </span>{" "}
+                              {/* ✅ */}
                             </div>
                           </Link>
                         ))
                       ) : (
-                        <div className="p-8 text-center text-gray-400 text-xs font-black italic">محصولی پیدا نشد ☹️</div>
+                        <div className="p-8 text-center text-gray-400 text-xs font-black italic">
+                          محصولی پیدا نشد ☹️
+                        </div>
                       )}
                     </div>
                   </div>
@@ -313,18 +332,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   </Link>
                 </div>
               ) : (
-                <Link
-                  href="/panel"
-                  className="p-3 bg-gray-100 text-gray-900 rounded-2xl hover:bg-blue-50 transition-all"
-                >
+                <Link href="/panel" className="p-3 bg-gray-100 text-gray-900 rounded-2xl hover:bg-blue-50 transition-all">
                   <User size={20} />
                 </Link>
               )}
 
-              <Link
-                href="/cart"
-                className="relative p-3 bg-gray-900 text-white rounded-2xl shadow-xl active:scale-95 transition-all"
-              >
+              <Link href="/cart" className="relative p-3 bg-gray-900 text-white rounded-2xl shadow-xl active:scale-95 transition-all">
                 <ShoppingCart size={20} strokeWidth={3} />
                 {cartCount > 0 && (
                   <span className="absolute -top-2 -left-2 bg-red-500 text-white text-[10px] font-black w-6 h-6 flex items-center justify-center rounded-full border-2 border-white animate-bounce">
@@ -335,9 +348,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
           </header>
 
-          <main className={`pt-20 min-h-screen bg-[#fcfcfc] ${hideBottomCart ? "pb-12" : "pb-40"}`}>
-            {children}
-          </main>
+          <main className={`pt-20 min-h-screen bg-[#fcfcfc] ${hideBottomCart ? "pb-12" : "pb-40"}`}>{children}</main>
 
           {/* ===================== */}
           {/* فوتر حرفه‌ای (بدون نوار سیاه بالا) */}
@@ -414,19 +425,26 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     <div className="md:col-span-3">
                       <h3 className="text-gray-900 text-base mb-4">لینک‌های مهم</h3>
                       <div className="flex flex-col gap-3 text-sm font-bold text-gray-600">
-                        <Link href="/" className="px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 hover:bg-blue-50 hover:text-blue-700 transition-all">
+                        <Link
+                          href="/"
+                          className="px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 hover:bg-blue-50 hover:text-blue-700 transition-all"
+                        >
                           صفحه اصلی
                         </Link>
-                        <Link href="/terms" className="px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 hover:bg-blue-50 hover:text-blue-700 transition-all">
+                        <Link
+                          href="/terms"
+                          className="px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 hover:bg-blue-50 hover:text-blue-700 transition-all"
+                        >
                           شرایط استفاده
                         </Link>
-                        <Link href="/privacy" className="px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 hover:bg-blue-50 hover:text-blue-700 transition-all">
+                        <Link
+                          href="/privacy"
+                          className="px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 hover:bg-blue-50 hover:text-blue-700 transition-all"
+                        >
                           حریم خصوصی
                         </Link>
                       </div>
-                      <p className="mt-4 text-[11px] text-gray-400 font-bold leading-6">
-                        
-                      </p>
+                      <p className="mt-4 text-[11px] text-gray-400 font-bold leading-6"></p>
                     </div>
 
                     {/* ارتباط با ما */}
@@ -485,9 +503,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                           <Send size={18} />
                         </Link>
 
-                        <div className="mr-auto text-[11px] text-gray-400 font-bold">
-                          پاسخ‌گویی: ۹ تا ۲۱
-                        </div>
+                        <div className="mr-auto text-[11px] text-gray-400 font-bold">پاسخ‌گویی: ۹ تا ۲۱</div>
                       </div>
                     </div>
                   </div>
@@ -499,12 +515,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     </div>
 
                     <div className="flex items-center gap-2 text-[11px] font-bold text-gray-400">
-                      <span className="px-3 py-2 rounded-2xl bg-gray-50 border border-gray-100">
-                        قوانین و حریم خصوصی
-                      </span>
-                      <span className="px-3 py-2 rounded-2xl bg-gray-50 border border-gray-100">
-                        خرید امن و مطمئن
-                      </span>
+                      <span className="px-3 py-2 rounded-2xl bg-gray-50 border border-gray-100">قوانین و حریم خصوصی</span>
+                      <span className="px-3 py-2 rounded-2xl bg-gray-50 border border-gray-100">خرید امن و مطمئن</span>
                     </div>
                   </div>
                 </div>
@@ -515,36 +527,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
           {/* نوار پایین موبایل */}
           <nav className="md:hidden fixed bottom-0 left-0 right-0 z-[400] bg-white/95 backdrop-blur-xl border-t border-gray-100 p-4 pb-8 flex justify-around items-center">
-            <Link
-              href="/"
-              className="flex flex-col items-center gap-1 text-gray-400 hover:text-blue-600 transition-all font-black italic"
-            >
+            <Link href="/" className="flex flex-col items-center gap-1 text-gray-400 hover:text-blue-600 transition-all font-black italic">
               <Home size={22} />
               <span>خانه</span>
             </Link>
 
             {!hideBottomCart && (
-              <Link
-                href="/cart"
-                className="flex flex-col items-center gap-1 text-gray-400 hover:text-blue-600 transition-all font-black italic"
-              >
+              <Link href="/cart" className="flex flex-col items-center gap-1 text-gray-400 hover:text-blue-600 transition-all font-black italic">
                 <ShoppingCart size={22} />
                 <span>سبد</span>
               </Link>
             )}
 
-            <Link
-              href={userData ? "/my-requests" : "/login"}
-              className="flex flex-col items-center gap-1 text-gray-400 hover:text-blue-600 transition-all font-black italic"
-            >
+            <Link href={userData ? "/my-requests" : "/login"} className="flex flex-col items-center gap-1 text-gray-400 hover:text-blue-600 transition-all font-black italic">
               <CreditCard size={22} />
               <span>اقساط</span>
             </Link>
 
-            <Link
-              href={userData ? "/panel" : "/login"}
-              className="flex flex-col items-center gap-1 text-gray-400 hover:text-blue-600 transition-all font-black italic"
-            >
+            <Link href={userData ? "/panel" : "/login"} className="flex flex-col items-center gap-1 text-gray-400 hover:text-blue-600 transition-all font-black italic">
               <User size={22} />
               <span>پنل</span>
             </Link>
