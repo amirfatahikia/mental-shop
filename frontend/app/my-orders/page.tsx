@@ -44,12 +44,13 @@ export default function MyOrdersPage() {
 
   // UI state
   const [query, setQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "paid" | "pending" | "processing" | "shipped" | "delivered" | "canceled">(
-    "all"
-  );
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "paid" | "pending" | "processing" | "shipped" | "delivered" | "canceled"
+  >("all");
   const [sort, setSort] = useState<"newest" | "oldest">("newest");
 
-  const API_BASE = "http://127.0.0.1:8000";
+  const IP_ADDRESS = "mental-shop-api.liara.run";
+  const API_BASE = `https://${IP_ADDRESS}`;
 
   // ✅ چند مسیر مختلف (برای اینکه هر مدل urls.py داشتی کار کنه)
   const ORDER_ENDPOINTS = useMemo(
@@ -146,7 +147,7 @@ export default function MyOrdersPage() {
       const data = await res.json();
       // بک‌اند ممکنه {results:[...]} برگردونه
       if (Array.isArray(data)) return data as Order[];
-      if (Array.isArray(data?.results)) return data.results as Order[];
+      if (Array.isArray((data as any)?.results)) return (data as any).results as Order[];
       return [];
     }
 

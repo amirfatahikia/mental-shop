@@ -121,8 +121,8 @@ export default function ProductDetails() {
   // ✅ Variant (Color) selection
   const [selectedVariantId, setSelectedVariantId] = useState<string | number | null>(null);
 
-  const IP_ADDRESS = "127.0.0.1";
-  const API_BASE = `http://${IP_ADDRESS}:8000`;
+  const IP_ADDRESS = "mental-shop-api.liara.run";
+  const API_BASE = `https://${IP_ADDRESS}`;
 
   /** ---------------------------
    * Helpers

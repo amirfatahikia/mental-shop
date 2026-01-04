@@ -30,6 +30,8 @@ import { usePathname } from "next/navigation";
 
 const vazir = Vazirmatn({ subsets: ["arabic"] });
 
+const IP_ADDRESS = "mental-shop-api.liara.run";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
@@ -52,7 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     setIsSearching(true);
     try {
       // اتصال به آدرس جدید بک‌اند برای جستجو
-      const res = await fetch(`http://localhost:8000/api/products/search/?q=${query}`);
+      const res = await fetch(`https://${IP_ADDRESS}/api/products/search/?q=${query}`);
       if (res.ok) {
         const data = await res.json();
         setSearchResults(data);

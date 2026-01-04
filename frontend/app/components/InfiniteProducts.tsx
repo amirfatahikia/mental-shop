@@ -11,7 +11,7 @@ interface Props {
   addToCart: (p: Product) => void;
 }
 
-export default function InfiniteProducts({ apiBase = "http://127.0.0.1:8000", pageSize = 24, addToCart }: Props) {
+export default function InfiniteProducts({ apiBase = "https://mental-shop-api.liara.run", pageSize = 24, addToCart }: Props) {
   const [items, setItems] = useState<Product[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);

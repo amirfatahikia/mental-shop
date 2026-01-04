@@ -29,7 +29,7 @@ export default function ProfilePage() {
   // ✅ شماره موبایل فقط نمایشی و غیرقابل ویرایش
   const [phoneNumber, setPhoneNumber] = useState("");
 
-  const IP_ADDRESS = "127.0.0.1";
+  const IP_ADDRESS = "mental-shop-api.liara.run";
 
   const safeLocal = (key: string, fallback = "") => {
     try {
@@ -56,7 +56,7 @@ export default function ProfilePage() {
     const storedFullName = safeLocal("user_fullName", "");
 
     try {
-      const res = await fetch(`http://${IP_ADDRESS}:8000/api/user-profile/`, {
+      const res = await fetch(`https://${IP_ADDRESS}/api/user-profile/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -125,7 +125,7 @@ export default function ProfilePage() {
         email,
       };
 
-      const res = await fetch(`http://${IP_ADDRESS}:8000/api/user-profile/`, {
+      const res = await fetch(`https://${IP_ADDRESS}/api/user-profile/`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,

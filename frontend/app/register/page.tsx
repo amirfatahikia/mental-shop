@@ -13,6 +13,8 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  const IP_ADDRESS = "mental-shop-api.liara.run";
+
   // تبدیل اعداد فارسی به انگلیسی
   const toEnglishDigits = (str: string) => str.replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d).toString());
 
@@ -21,7 +23,7 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/register/", {
+      const res = await fetch(`https://${IP_ADDRESS}/api/register/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

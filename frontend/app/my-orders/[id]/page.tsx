@@ -32,7 +32,9 @@ export default function OrderDetailsPage() {
   const rawId = (params as any)?.id;
   const id = Array.isArray(rawId) ? rawId[0] : rawId;
 
-  const API_BASE = "http://127.0.0.1:8000";
+  const IP_ADDRESS = "mental-shop-api.liara.run";
+
+  const API_BASE = `https://${IP_ADDRESS}`;
 
   const ENDPOINTS = useMemo(
     () => [

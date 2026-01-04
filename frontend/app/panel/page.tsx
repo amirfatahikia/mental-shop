@@ -27,7 +27,8 @@ export default function PanelPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
 
-  const IP_ADDRESS = "127.0.0.1";
+  // ✅ آدرس بک‌اند (بدون https و بدون اسلش اضافی)
+  const IP_ADDRESS = "mental-shop-api.liara.run";
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
@@ -39,7 +40,7 @@ export default function PanelPage() {
     }
 
     setIsLoggedIn(true);
-    fetch(`http://${IP_ADDRESS}:8000/api/user-profile/`, {
+    fetch(`https://${IP_ADDRESS}/api/user-profile/`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())

@@ -115,7 +115,8 @@ function CheckoutContent() {
   /** ---------------------------
    * API config
    * --------------------------*/
-  const API_ROOT = (process.env.NEXT_PUBLIC_API_ROOT || "http://127.0.0.1:8000").replace(/\/$/, "");
+  const IP_ADDRESS = "mental-shop-api.liara.run";
+  const API_ROOT = (process.env.NEXT_PUBLIC_API_ROOT || `https://${IP_ADDRESS}`).replace(/\/$/, "");
 
   // Endpoints
   const API_BASE = `${API_ROOT}/api/user-addresses/`;

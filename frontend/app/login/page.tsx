@@ -3,6 +3,9 @@ import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
+// ✅ آدرس بک‌اند (بدون https و بدون اسلش اضافی)
+const IP_ADDRESS = "mental-shop-api.liara.run";
+
 // استفاده از Suspense برای جلوگیری از خطاهای احتمالی Next.js هنگام خواندن SearchParams
 function LoginForm() {
   const [credentials, setCredentials] = useState({ username: "", password: "" });
@@ -22,7 +25,7 @@ function LoginForm() {
     try {
       const usernameEN = toEnglishDigits(credentials.username);
 
-      const res = await fetch("http://127.0.0.1:8000/api/login/", {
+      const res = await fetch(`https://${IP_ADDRESS}/api/login/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -130,8 +130,8 @@ type ConfirmState =
 /** ---------------------------
  * Config
  * --------------------------*/
-const IP_ADDRESS = "127.0.0.1";
-const API_BASE = `http://${IP_ADDRESS}:8000`;
+const IP_ADDRESS = "mental-shop-api.liara.run";
+const API_BASE = `https://${IP_ADDRESS}`;
 
 // ارسال هوشمند
 const FREE_SHIP_THRESHOLD = 500_000; // بالای این مبلغ ارسال رایگان
@@ -303,13 +303,17 @@ export default function CartPage() {
         Number(item.price) ??
         0;
 
-      const chosenOriginal = (chosen ? getVariantOriginal(chosen) : null) ?? (api?.compare_at_price ?? api?.original_price ?? null);
+      const chosenOriginal =
+        (chosen ? getVariantOriginal(chosen) : null) ??
+        (api?.compare_at_price ?? api?.original_price ?? null);
 
       const unitPrice = Number(chosenPrice) || 0;
 
       const originalPrice =
         (typeof chosenOriginal === "number" && chosenOriginal > unitPrice ? chosenOriginal : null) ??
-        (typeof item.original_price === "number" && item.original_price > unitPrice ? item.original_price : null) ??
+        (typeof item.original_price === "number" && item.original_price > unitPrice
+          ? item.original_price
+          : null) ??
         null;
 
       const image = resolveUrl(
@@ -327,7 +331,9 @@ export default function CartPage() {
       const variantColor = chosen ? getVariantHex(chosen) : item.variant_color ?? null;
 
       // stock priority: variant.stock -> product.stock -> null
-      const stock = (typeof chosen?.stock === "number" ? chosen.stock : null) ?? (api?.stock ?? null);
+      const stock =
+        (typeof chosen?.stock === "number" ? chosen.stock : null) ??
+        (api?.stock ?? null);
 
       return {
         id: item.id,
@@ -399,14 +405,25 @@ export default function CartPage() {
   }, [syncCartWithApi]);
 
   /** Totals */
-  const subtotal = useMemo(() => cart.reduce((acc, item) => acc + item.unitPrice * item.quantity, 0), [cart]);
-  const totalItems = useMemo(() => cart.reduce((acc, item) => acc + item.quantity, 0), [cart]);
+  const subtotal = useMemo(
+    () => cart.reduce((acc, item) => acc + item.unitPrice * item.quantity, 0),
+    [cart]
+  );
+  const totalItems = useMemo(
+    () => cart.reduce((acc, item) => acc + item.quantity, 0),
+    [cart]
+  );
 
   // shipping: اگر API shipping_fee بده => جمع آیتم‌ها، وگرنه قانون ثابت/آستانه
   const shippingFee = useMemo(() => {
-    const hasAny = cart.some((i) => typeof i.shipping_fee === "number" && Number(i.shipping_fee) > 0);
+    const hasAny = cart.some(
+      (i) => typeof i.shipping_fee === "number" && Number(i.shipping_fee) > 0
+    );
     if (hasAny) {
-      return cart.reduce((acc, i) => acc + Number(i.shipping_fee || 0) * i.quantity, 0);
+      return cart.reduce(
+        (acc, i) => acc + Number(i.shipping_fee || 0) * i.quantity,
+        0
+      );
     }
     return subtotal >= FREE_SHIP_THRESHOLD ? 0 : SHIPPING_FLAT;
   }, [cart, subtotal]);

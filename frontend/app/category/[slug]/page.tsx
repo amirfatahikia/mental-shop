@@ -152,7 +152,7 @@ export default function CategoryPage() {
   const params = useParams();
   const { showModal } = useModal();
 
-  const IP_ADDRESS = "127.0.0.1";
+  const IP_ADDRESS = "mental-shop-api.liara.run";
 
   // slug از route (ممکنه string یا string[] باشه)
   const routeSlug = useMemo(() => {
@@ -215,7 +215,7 @@ export default function CategoryPage() {
     (async () => {
       try {
         // 1) دسته‌ها (FLAT)
-        const catRes = await fetch(`http://${IP_ADDRESS}:8000/api/categories/flat/`);
+        const catRes = await fetch(`https://${IP_ADDRESS}/api/categories/flat/`);
         const catData = catRes.ok ? await catRes.json() : [];
         const arr: Category[] = Array.isArray(catData) ? catData : [];
         setCategories(arr);
@@ -262,7 +262,7 @@ export default function CategoryPage() {
         const lists = await Promise.all(
           allowedList.map(async (s) => {
             const res = await fetch(
-              `http://${IP_ADDRESS}:8000/api/products/?category_slug=${encodeURIComponent(s)}`
+              `https://${IP_ADDRESS}/api/products/?category_slug=${encodeURIComponent(s)}`
             );
             const data = res.ok ? await res.json() : [];
             return Array.isArray(data) ? (data as Product[]) : [];

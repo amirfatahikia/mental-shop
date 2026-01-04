@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+// ✅ آدرس بک‌اند (بدون https و بدون اسلش اضافی)
+const IP_ADDRESS = "mental-shop-api.liara.run";
+
 export default function MyRequestsList() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,7 +18,7 @@ export default function MyRequestsList() {
       return;
     }
 
-    fetch("http://127.0.0.1:8000/api/my-requests/", {
+    fetch(`https://${IP_ADDRESS}/api/my-requests/`, {
       headers: { "Authorization": `Bearer ${token}` }
     })
     .then(res => res.json())
