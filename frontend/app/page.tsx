@@ -568,10 +568,10 @@ export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
 
-  const IP_ADDRESS = "127.0.0.1";
+  const IP_ADDRESS = "mental-shop-api.liara.run";
 
   useEffect(() => {
-    fetch(`http://${IP_ADDRESS}:8000/api/products/`)
+    fetch(`https://${IP_ADDRESS}/api/products/`)
       .then((res) => res.json())
       .then((data) => {
         const arr: Product[] = Array.isArray(data) ? data : [];
@@ -593,7 +593,7 @@ export default function Home() {
 
     const token = localStorage.getItem("access_token");
     if (token) {
-      fetch(`http://${IP_ADDRESS}:8000/api/user-profile/`, {
+      fetch(`https://${IP_ADDRESS}/api/user-profile/`, {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((res) => res.json())
@@ -604,7 +604,7 @@ export default function Home() {
         })
         .catch(() => {});
 
-      fetch(`http://${IP_ADDRESS}:8000/api/my-requests/`, {
+      fetch(`https://${IP_ADDRESS}/api/my-requests/`, {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((res) => res.json())
