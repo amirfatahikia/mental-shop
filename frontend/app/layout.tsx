@@ -460,7 +460,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                             <Phone size={16} className="text-gray-400" />
                             تلفن
                           </span>
-                          <span className="text-gray-500">09000000000</span>
+                          <span className="text-gray-500">02133405098</span>
                         </a>
 
                         <a
@@ -471,7 +471,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                             <Mail size={16} className="text-gray-400" />
                             ایمیل
                           </span>
-                          <span className="text-gray-500">support@mentalshop.ir</span>
+                          <span className="text-gray-500">mentalshop27@gmail.com</span>
                         </a>
                       </div>
 
