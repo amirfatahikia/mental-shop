@@ -126,6 +126,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="fa" dir="rtl" className="bg-[#fcfcfc]">
+      <head>
+        <meta name="enamad" content="36503161" />
+      </head>
       <body className={`${vazir.className} bg-[#fcfcfc] text-right antialiased`}>
         <ModalProvider>
           {/* سایدبار هوشمند */}
