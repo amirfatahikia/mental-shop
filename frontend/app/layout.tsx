@@ -508,6 +508,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
                         <div className="mr-auto text-[11px] text-gray-400 font-bold">پاسخ‌گویی: ۹ تا ۲۱</div>
                       </div>
+
+                      {/* لوگوی اینماد */}
+                      <div className="mt-6 bg-white p-2 rounded-2xl inline-block shadow-sm border border-gray-50">
+                        <a 
+                          referrerPolicy="origin" 
+                          target="_blank" 
+                          href="https://trustseal.enamad.ir/?id=5445795&Code=jd8PefEZ1rDvz3lyMMxOoGSZ6SBnFGr1"
+                        >
+                          <img 
+                            referrerPolicy="origin" 
+                            src="https://trustseal.enamad.ir/logo.aspx?id=5445795&Code=jd8PefEZ1rDvz3lyMMxOoGSZ6SBnFGr1" 
+                            alt="نماد اعتماد الکترونیکی" 
+                            style={{ cursor: "pointer", width: "75px", height: "auto" }} 
+                          />
+                        </a>
+                      </div>
                     </div>
                   </div>
 
