@@ -9,19 +9,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "orderId is required" }, { status: 400 });
     }
 
-    // آدرس دقیق دامنه برای بازگشت از بانک
+    // ⚠️ مهم: این آدرس باید دقیقاً همانی باشد که در پنل زیبال تایید کردید
     const baseUrl = "https://www.mental-shop.ir";
 
     const zibalResponse = await fetch("https://gateway.zibal.ir/v1/request", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        merchant: "695e8a9ba21601002ca8fbf9", // مرچنت تایید شده شما
-        amount: 1000000, // مبلغ ۱۰۰ هزار تومان به ریال
-        callbackUrl: `${baseUrl}/api/payment/verify?orderId=${orderId}`, // مسیر تایید
+        merchant: "695e8a9ba21601002ca8fbf9", // مرچنت کد واقعی شما
+        amount: 1000000, // ۱۰۰ هزار تومان به ریال
+        callbackUrl: `${baseUrl}/api/payment/verify?orderId=${orderId}`,
         orderId: orderId,
-        description: "هزینه استعلام اعتبارسنجی منتال شاپ",
-        direct: false 
+        description: "هزینه استعلام اعتبار حساب منتال شاپ",
+        direct: false // روی false بماند تا تاییدیه شاپرک نهایی شود
       }),
     });
 
@@ -30,13 +30,17 @@ export async function POST(request: NextRequest) {
     if (data.result === 100) {
       return NextResponse.json({
         success: true,
-        url: `https://gateway.zibal.ir/start/${data.trackId}`, // لینک هدایت به بانک
+        url: `https://gateway.zibal.ir/start/${data.trackId}`,
         trackId: data.trackId,
       });
     } else {
-      return NextResponse.json({ error: data.message }, { status: 400 });
+      // این بخش کد خطا را برمی‌گرداند تا در تب Network ببینیم
+      return NextResponse.json(
+        { error: "Zibal Error", code: data.result, message: data.message },
+        { status: 400 }
+      );
     }
   } catch (error: any) {
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
