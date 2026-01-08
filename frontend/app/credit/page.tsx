@@ -4,7 +4,6 @@ import React, { Suspense, useState, useEffect, useMemo, useCallback, useRef } fr
 import { useRouter, useSearchParams } from "next/navigation";
 import { useModal } from "@/context/ModalContext";
 
-/** ✅ کامپوننت داخلی: تمام کد قبلی اینجاست (بدون حذف شدن چیزی) */
 function CreditRequestInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -37,9 +36,6 @@ function CreditRequestInner() {
 
   const contentRef = useRef<HTMLDivElement | null>(null);
 
-  /** ---------------------------
-   * Helpers
-   * --------------------------*/
   const toEnglishDigits = useCallback((str: string) => {
     return (str || "")
       .replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d).toString())
@@ -48,7 +44,6 @@ function CreditRequestInner() {
 
   const onlyDigits = useCallback((str: string) => toEnglishDigits(str).replace(/\D/g, ""), [toEnglishDigits]);
 
-  // الگوریتم اعتبارسنجی کد ملی ایران
   const isValidIranNationalCode = useCallback(
     (input: string) => {
       const code = onlyDigits(input);
@@ -105,9 +100,6 @@ function CreditRequestInner() {
     } catch {}
   };
 
-  /** ---------------------------
-   * Interest / Totals
-   * --------------------------*/
   const interestRate = useMemo(() => (months === 12 ? 0.08 : 0.12), [months]);
   const feeAmount = useMemo(() => Math.floor(amount * interestRate), [amount, interestRate]);
   const totalPayable = useMemo(() => amount + feeAmount, [amount, feeAmount]);
@@ -116,23 +108,30 @@ function CreditRequestInner() {
     setInstallment(Math.floor(totalPayable / months));
   }, [totalPayable, months]);
 
-  /** ---------------------------
-   * Handle query param step after login
-   * --------------------------*/
   useEffect(() => {
     const requestedStep = searchParams.get("step");
+    const status = searchParams.get("status");
+    const trackId = searchParams.get("trackId");
     const token = localStorage.getItem("access_token");
 
-    if (requestedStep === "2" && token) {
+    // اگر کاربر از بانک برگشته و موفق بوده
+    if (status === "success" && trackId) {
+      setTrackingCode(trackId);
+      setStep(4);
+      scrollToTopSmooth();
+    } 
+    // اگر پرداخت ناموفق بود
+    else if (status === "failed") {
+      showModal("error", "پرداخت ناموفق", "پرداخت با خطا مواجه شد. لطفا مجددا تلاش کنید.");
+    }
+    // هندل کردن استپ‌های قبلی
+    else if (requestedStep === "2" && token) {
       setStep(2);
       scrollToTopSmooth();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
-  /** ---------------------------
-   * Check pending requests (از API داخلی Next)
-   * --------------------------*/
   useEffect(() => {
     const checkPending = async () => {
       const token = localStorage.getItem("access_token");
@@ -161,9 +160,6 @@ function CreditRequestInner() {
     checkPending();
   }, [router, showModal]);
 
-  /** ---------------------------
-   * Step One Next
-   * --------------------------*/
   const handleStepOneNext = () => {
     const token = localStorage.getItem("access_token");
 
@@ -180,9 +176,6 @@ function CreditRequestInner() {
     }
   };
 
-  /** ---------------------------
-   * Validation Step 2
-   * --------------------------*/
   const validateStepTwo = () => {
     const errors: typeof fieldErrors = {};
 
@@ -211,9 +204,6 @@ function CreditRequestInner() {
     return Object.keys(errors).length === 0;
   };
 
-  /** ---------------------------
-   * Final Submit (از API داخلی Next)
-   * --------------------------*/
   const handleFinalSubmit = async () => {
     setLoading(true);
     setPageError("");
@@ -228,6 +218,7 @@ function CreditRequestInner() {
     try {
       const fullBirthDate = `${onlyDigits(formData.birthYear)}/${onlyDigits(formData.birthMonth)}/${onlyDigits(formData.birthDay)}`;
 
+      // ۱. ابتدا درخواست اعتبار را در دیتابیس خود ثبت می‌کنیم (وضعیت: در انتظار پرداخت)
       const response = await fetch(`/api/credit-request`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -243,25 +234,42 @@ function CreditRequestInner() {
       const data = await response.json().catch(() => ({}));
 
       if (response.ok) {
-        setTrackingCode((data as any).tracking_code || "");
-        setStep(4);
-        scrollToTopSmooth();
+        // ۲. حالا درخواست پرداخت ۱۰۰ هزار تومانی به درگاه زیبال را ارسال می‌کنیم
+        const payRes = await fetch("/api/payment/request", { 
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                orderId: (data as any).tracking_code // کد رهگیری را می‌فرستیم تا بعداً بدانیم کدام سفارش پرداخت شده
+            }) 
+        });
+        
+        if (!payRes.ok) {
+          throw new Error("خطا در اتصال به درگاه پرداخت");
+        }
+        
+        const payData = await payRes.json();
+
+        if (payData.url) {
+          // ۳. هدایت کاربر به درگاه بانک
+          window.location.href = payData.url;
+        } else {
+          showModal("error", "خطا در درگاه", "امکان اتصال به درگاه بانکی فراهم نشد.");
+          setLoading(false);
+        }
       } else {
         const msg = (data as any)?.detail || (data as any)?.message || "خطای ثبت درخواست";
         setPageError(msg);
         showModal("error", "ثبت درخواست ناموفق", msg);
+        setLoading(false);
       }
     } catch (e: any) {
+      console.error("Payment error:", e);
       setPageError("خطا در اتصال به سرور");
-      showModal("error", "خطای شبکه 🌐", "ارتباط با سرور برقرار نشد. سرور را بررسی کنید.");
-    } finally {
+      showModal("error", "خطای شبکه 🌐", "ارتباط با سرور برقرار نشد.");
       setLoading(false);
     }
   };
 
-  /** ---------------------------
-   * UI Helpers
-   * --------------------------*/
   const Stepper = () => {
     const steps = [
       { n: 1, t: "محاسبه" },
@@ -717,7 +725,6 @@ function CreditRequestInner() {
   );
 }
 
-/** ✅ خروجی اصلی صفحه: فقط یک Wrapper با Suspense اضافه شده */
 export default function CreditRequestPage() {
   return (
     <Suspense
