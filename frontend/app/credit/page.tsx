@@ -204,7 +204,6 @@ function CreditRequestInner() {
     return Object.keys(errors).length === 0;
   };
 
-  // تابع handleFinalSubmit اصلاح شده نهایی
   const handleFinalSubmit = async () => {
     setLoading(true);
     setPageError("");
@@ -217,15 +216,18 @@ function CreditRequestInner() {
     }
 
     try {
-      // اصلاح فرمت تاریخ از / به - (برای فهم جنگو)
-      const fullBirthDate = `${onlyDigits(formData.birthYear)}-${onlyDigits(formData.birthMonth).padStart(2, '0')}-${onlyDigits(formData.birthDay).padStart(2, '0')}`;
+      // ۱. اصلاح فرمت تاریخ: جنگو اسلش (/) قبول نمی‌کند، حتماً باید خط تیره (-) باشد
+      const y = onlyDigits(formData.birthYear);
+      const m = onlyDigits(formData.birthMonth).padStart(2, '0');
+      const d = onlyDigits(formData.birthDay).padStart(2, '0');
+      const fullBirthDate = `${y}-${m}-${d}`;
 
-      // ۱. اصلاح آدرس API مطابق با فایل urls.py بک‌اِند
+      // ۲. اصلاح آدرس API: مطابق urls.py بک‌اِند شما، کلمه requests (جمع) و create الزامی است
       const response = await fetch(`https://mental-shop-api.liara.run/api/credit-requests/create/`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json", 
-          Authorization: `Bearer ${token}` 
+          "Authorization": `Bearer ${token}` 
         },
         body: JSON.stringify({
           national_id: onlyDigits(formData.national_id),
@@ -239,25 +241,29 @@ function CreditRequestInner() {
       const data = await response.json().catch(() => ({}));
 
       if (response.ok) {
-        // ۲. مرحله پرداخت زیبال (این بخش اوکی است)
+        // ۳. فراخوانی API محلی برای هدایت به درگاه زیبال
         const payRes = await fetch("/api/payment/request", { 
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ orderId: (data as any).tracking_code }) 
+            body: JSON.stringify({ orderId: data.tracking_code }) 
         });
         
         const payData = await payRes.json();
+        
         if (payData.url) {
           window.location.href = payData.url;
         } else {
-          showModal("error", "خطا در درگاه", "امکان اتصال به بانک فراهم نشد.");
+          showModal("error", "خطا در درگاه زیبال", payData.error || "امکان اتصال به درگاه فراهم نشد.");
         }
       } else {
         const msg = data.detail || data.message || "خطای ثبت درخواست در سرور";
+        setPageError(msg);
         showModal("error", "ثبت ناموفق", msg);
       }
     } catch (e: any) {
-      showModal("error", "خطای شبکه 🌐", "ارتباط با سرور برقرار نشد. احتمالاً مشکل CORS یا آدرس اشتباه است.");
+      console.error("Payment error:", e);
+      setPageError("خطا در ارتباط با سرور مرکزی");
+      showModal("error", "خطای شبکه 🌐", "ارتباط با بک‌اِند برقرار نشد. لطفاً وضعیت اینترنت و دپلوی لیارا را چک کنید.");
     } finally {
       setLoading(false);
     }
