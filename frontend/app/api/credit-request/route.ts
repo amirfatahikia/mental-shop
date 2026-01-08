@@ -1,30 +1,32 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export const runtime = "nodejs";
-
-const BACKEND = "http://127.0.0.1:8000";
-
-export async function POST(req: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const auth = req.headers.get("authorization") ?? "";
-    const bodyText = await req.text(); // همون JSON ارسالی از فرانت
+    const body = await request.json();
+    const token = request.headers.get("authorization");
 
-    const r = await fetch(`${BACKEND}/api/credit-requests/create/`, {
+    // آدرس بک‌اند جنگو شما (اگر در لوکال هستید معمولا 8000 است)
+    // در زمان دیپلوی روی ورسل، این آدرس باید آدرس آنلاین بک‌اندمان باشد
+    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://127.0.0.1:8000";
+
+    const response = await fetch(`${BACKEND_URL}/api/credit/request/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: auth,
+        "Authorization": token || "",
       },
-      body: bodyText,
-      cache: "no-store",
+      body: JSON.stringify(body),
     });
 
-    const data = await r.json().catch(() => ({}));
-    return NextResponse.json(data, { status: r.status });
-  } catch (e: any) {
-    return NextResponse.json(
-      { detail: "Backend unreachable", error: e?.message || "unknown" },
-      { status: 502 }
-    );
+    const data = await response.json();
+
+    if (response.ok) {
+      return NextResponse.json(data);
+    } else {
+      return NextResponse.json(data, { status: response.status });
+    }
+  } catch (error) {
+    console.error("Connection to Django failed:", error);
+    return NextResponse.json({ message: "بک‌اند در دسترس نیست" }, { status: 502 });
   }
 }
