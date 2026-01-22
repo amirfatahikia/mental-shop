@@ -58,6 +58,15 @@ class CreditRequest(models.Model):
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
 
+    # ✅ اطلاعات هویتی از فرانت‌اند
+    full_name = models.CharField(max_length=255, blank=True, null=True, verbose_name="نام کامل")
+    national_id = models.CharField(max_length=20, blank=True, null=True, verbose_name="کد ملی")
+    birth_date = models.DateField(blank=True, null=True, verbose_name="تاریخ تولد")
+    
+    # ✅ اطلاعات پرداخت
+    payment_track_id = models.CharField(max_length=100, blank=True, null=True, verbose_name="کد رهگیری پرداخت")
+    payment_date = models.DateTimeField(blank=True, null=True, verbose_name="تاریخ پرداخت")
+
     # ✅ برای اینکه دوبار به کیف پول واریز نشه
     credited_to_wallet = models.BooleanField(default=False)
 

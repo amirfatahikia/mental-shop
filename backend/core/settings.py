@@ -1,15 +1,17 @@
 from pathlib import Path
 from datetime import timedelta
 import os
+from decouple import config
+import dj_database_url
 
 # ۱. مسیر اصلی پروژه
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ۲. تنظیمات امنیتی
-SECRET_KEY = 'django-insecure-30$m5vx=m7f)v12-sb1w775@a0arg$pc&z=thev#(=)9k+4m84'
-DEBUG = True
+# اضافه کردن default باعث می‌شود هنگام Build (که متغیرها در دسترس نیستند) ارور ندهد
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-build-fallback-key')
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-# ✅ طبق درخواست شما
 ALLOWED_HOSTS = ['*']
 
 # ۳. تعریف اپلیکیشن‌ها
@@ -24,6 +26,7 @@ INSTALLED_APPS = [
     # پکیج‌های نصب شده
     'rest_framework',
     'corsheaders',
+    'storages',
 
     # اپلیکیشن‌های شما
     'products',
@@ -31,14 +34,11 @@ INSTALLED_APPS = [
     'orders',
 ]
 
-# ۴. ترتیب Middleware‌ها (CORS در ابتدا قرار دارد)
+# ۴. ترتیب Middleware‌ها
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # حتماً اولین باشد
     'django.middleware.security.SecurityMiddleware',
-
-    # ✅ طبق درخواست شما: دقیقاً زیر SecurityMiddleware
     'whitenoise.middleware.WhiteNoiseMiddleware',
-
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -67,12 +67,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# ۵. دیتابیس
+# ۵. دیتابیس هوشمند (اتصال به دیتابیس لیارا)
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': config(
+        'DATABASE_URL',
+        default='sqlite:///db.sqlite3', # اضافه کردن این خط برای جلوگیری از ارور بیلد
+        cast=dj_database_url.parse
+    )
 }
 
 # ۶. تایید رمز عبور
@@ -89,40 +90,32 @@ TIME_ZONE = 'Asia/Tehran'
 USE_I18N = True
 USE_TZ = True
 
-# ۸. تنظیمات فایل‌های استاتیک و رسانه‌ای (Media)
+# ۸. تنظیمات فایل‌های استاتیک
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# (اختیاری ولی پیشنهادی برای WhiteNoise)
-# STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
-# آدرسی که در مرورگر برای دیدن عکس‌ها استفاده می‌شود
-MEDIA_URL = '/media/'
-# پوشه‌ای که عکس‌ها در آن ذخیره می‌شوند
-MEDIA_ROOT = BASE_DIR / 'media'
-
-# ✅ اضافه شد: افزایش سقف آپلود (برای عکس/ویدئو)
-DATA_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024   # 50MB
-FILE_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024   # 50MB
-FILE_UPLOAD_PERMISSIONS = 0o644
-
-# ۹. تنظیمات CORS و دسترسی‌های معتبر
+# ۹. تنظیمات CORS و امنیت دامنه جدید
+CORS_ALLOW_ALL_ORIGINS = False # برای امنیت بیشتر روی False بماند
 CORS_ALLOW_CREDENTIALS = True
 
-# ✅ طبق درخواست شما: چون فرانت و بک‌اند روی دو آدرس مختلف‌اند
-# لینک ورسل خودت رو جایگزین کن
+# دامنه‌هایی که اجازه دارند به این API درخواست بفرستند
 CORS_ALLOWED_ORIGINS = [
-    "https://YOUR_VERCEL_LINK.vercel.app",
+    "https://mentalshop.ir",
+    "https://www.mentalshop.ir",
+    "https://mental-shop.ir",          # آدرس جدید بدون www
+    "https://www.mental-shop.ir",      # آدرس جدید با www
+    "https://mental-shop.vercel.app",
+    "http://localhost:3000",
 ]
 
-# ✅ مهم: چون قبلاً True بود و با لیست بالا تداخل داره
-CORS_ALLOW_ALL_ORIGINS = False
-
-# (پیشنهادی) برای POST/PUT از ورسل، این هم بهتره اضافه بشه
+# دامنه‌های معتبر برای ارسال فرم‌ها (مثل ثبت‌نام و ورود)
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    "https://YOUR_VERCEL_LINK.vercel.app",
+    "https://mentalshop.ir",
+    "https://www.mentalshop.ir",
+    "https://mental-shop.ir",          # آدرس جدید حتماً اضافه شود
+    "https://www.mental-shop.ir",      # آدرس جدید با www
+    "https://mental-shop.vercel.app",
+    "https://mental-shop-api.liara.run",
 ]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -132,12 +125,11 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
-    # ✅ اضافه شد: برای اینکه API بتونه multipart/form-data (آپلود فایل) رو بگیره
-    'DEFAULT_PARSER_CLASSES': (
+    'DEFAULT_PARSER_CLASSES': [
         'rest_framework.parsers.JSONParser',
         'rest_framework.parsers.FormParser',
         'rest_framework.parsers.MultiPartParser',
-    ),
+    ],
 }
 
 SIMPLE_JWT = {
@@ -146,3 +138,32 @@ SIMPLE_JWT = {
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY,
 }
+
+# ۱۱. تنظیمات اختصاصی انبار عکس لیارا (S3)
+AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID', default='')
+AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY', default='')
+AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME', default='')
+AWS_S3_ENDPOINT_URL = config('AWS_S3_ENDPOINT_URL', default='')
+
+# تنظیمات هماهنگی با لیارا
+AWS_S3_REGION_NAME = 'us-east-1' 
+AWS_S3_SIGNATURE_VERSION = 's3v4'
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None
+AWS_S3_VERIFY = True
+AWS_QUERYSTRING_AUTH = False
+
+# اضافه شدن این خط برای حل مشکل آدرس‌دهی در لیارا
+AWS_S3_ADDRESSING_STYLE = "path" 
+
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
+# این خط را به انتهای بخش ۱۱ در settings.py اضافه کن
+AWS_S3_PRECONNECT_CHECK = False
