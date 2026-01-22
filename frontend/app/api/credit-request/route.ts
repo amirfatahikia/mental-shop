@@ -5,11 +5,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const token = request.headers.get("authorization");
 
-    // آدرس بک‌اند جنگو شما (اگر در لوکال هستید معمولا 8000 است)
-    // در زمان دیپلوی روی ورسل، این آدرس باید آدرس آنلاین بک‌اندمان باشد
-    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://127.0.0.1:8000";
+    // آدرس بک‌اند جنگو
+    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || "https://mental-shop-api.liara.run";
 
-    const response = await fetch(`${BACKEND_URL}/api/credit/request/`, {
+    // 🔴 اصلاح شده: استفاده از endpoint صحیح در بک‌اند
+    const response = await fetch(`${BACKEND_URL}/api/credit-requests/create/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

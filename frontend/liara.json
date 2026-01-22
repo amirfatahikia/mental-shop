@@ -1,0 +1,8 @@
+{
+  "app": "mental-shop-web",
+  "platform": "next",
+  "port": 3000,
+  "next": {
+    "mirror": false
+  }
+}
