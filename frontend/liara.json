@@ -1,8 +1,8 @@
 {
-  "app": "mental-shop-web",
-  "platform": "next",
-  "port": 3000,
-  "next": {
-    "mirror": false
-  }
+  "app": "mental-shop-api",
+  "port": 80,
+  "build": {
+    "location": "iran"
+  },
+  "disks": []
 }

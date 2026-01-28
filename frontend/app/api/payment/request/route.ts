@@ -11,6 +11,19 @@ const CALLBACK_BASE = "https://www.mental-shop.ir"; // یا "http://localhost:30
 const PAYMENT_AMOUNT = 1_000_000; // ۱۰۰,۰۰۰ تومان = ۱,۰۰۰,۰۰۰ ریال (ثابت برای اعتبارسنجی)
 
 /* -------------------------------------------------
+   تابع کمکی دریافت IP سرور
+   ------------------------------------------------- */
+async function getServerIP() {
+  try {
+    const res = await fetch("https://api.ipify.org?format=json", { cache: 'no-store' });
+    const data = await res.json();
+    return data.ip;
+  } catch {
+    return "نامشخص";
+  }
+}
+
+/* -------------------------------------------------
    هِلپرهای ساده
    ------------------------------------------------- */
 function jsonError(message: string, status: number = 400) {
@@ -84,9 +97,9 @@ export async function POST(request: NextRequest) {
   const callbackUrl = `${CALLBACK_BASE}/api/payment/verify?orderId=${encodeURIComponent(orderId)}`;
   console.log("[payment/request] Callback URL:", callbackUrl);
 
-  // ---------- ۴️⃣ فراخوانی Zibal با timeout ----------
+  // ---------- ۴️⃣ فراخوانی Zibal با timeout (افزایش یافته به ۳۰ ثانیه) ----------
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15_000);
+  const timeoutId = setTimeout(() => controller.abort(), 30_000); // تغییر از ۱۵,۰۰۰ به ۳۰,۰۰۰
 
   let zibalRes: Response;
   try {
@@ -118,11 +131,19 @@ export async function POST(request: NextRequest) {
     console.error("[payment/request] خطای شبکه:", err);
     clearTimeout(timeoutId);
     
-    return jsonError(
-      err.name === "AbortError"
-        ? "پاسخ درگاه پرداخت بیش از حد طولانی شد (۱۵ ثانیه)"
-        : "خطای ارتباط با درگاه پرداخت"
-    );
+    // دریافت آی‌پی سرور برای عیب‌یابی
+    const serverIp = await getServerIP();
+    
+    const isTimeout = err.name === "AbortError";
+    const msg = isTimeout 
+      ? `پاسخ درگاه پرداخت بیش از حد طولانی شد (۳۰ ثانیه). آی‌پی سرور شما: ${serverIp}`
+      : `خطای ارتباط با درگاه پرداخت. آی‌پی سرور شما: ${serverIp}`;
+
+    return NextResponse.json({ 
+      ok: false, 
+      error: msg,
+      hint: `آی‌پی ${serverIp} را در پنل زیبای ثبت کنید.`
+    }, { status: 504 }); // تغییر وضعیت به 504 برای تایم‌اوت
   } finally {
     clearTimeout(timeoutId);
   }
