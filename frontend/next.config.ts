@@ -18,12 +18,9 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  /* نادیده گرفتن خطاهای تایپ‌اسکریپت و لینت در زمان بیلد برای پایداری استقرار */
+  /* نادیده گرفتن خطاهای تایپ‌اسکریپت در زمان بیلد برای پایداری استقرار */
   typescript: {
     ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
   },
 };
 

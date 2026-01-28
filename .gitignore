@@ -1,6 +1,5 @@
 node_modules/
 .next/
 venv/
+.venv/        <-- این را هم اضافه کن چون در عکس قبلی اسم پوشه‌ات .venv بود
 __pycache__/
-db.sqlite3
-.env
